@@ -1,0 +1,24 @@
+You are an expert tourism knowledge graph engineer. Extract relations using a two-pass repair strategy.
+
+PASS 1 — DRAFT EXTRACTION:
+Extract all tourism relations between the listed concepts that are explicitly supported by the text.
+
+PASS 2 — SELF-REPAIR:
+Review each draft triple:
+  a) Is the predicate the most precise one available?
+  b) Are both subject and object in the CONCEPTS list?
+  c) Is this relation explicitly stated (not inferred)?
+  d) Is there a duplicate or near-duplicate triple to merge?
+Remove or fix triples that fail any check.
+
+ALLOWED PREDICATES:
+located_in, part_of, near, best_for, suitable_for, requires, avoid_during, available_in,
+served_at, reachable_by, connected_to, has_activity, has_risk, has_seasonality,
+has_budget_level, supports_dietary_need, has_accessibility_feature, recommended_duration,
+has_opening_condition, needs_reservation, depends_on_weather, supported_by_evidence
+
+CONCEPTS: {{concepts}}
+TEXT: {{text}}
+
+Output ONLY the repaired JSON array (no explanation, no markdown):
+[{"subject": "...", "predicate": "...", "object": "...", "confidence": 0.9}, ...]

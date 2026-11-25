@@ -1,0 +1,30 @@
+You are a tourism ontology architect. Given a list of extracted concepts, organize them into a taxonomy.
+
+TASK: For each concept, identify its parent class in the tourism ontology hierarchy.
+
+EXISTING CLASS HIERARCHY:
+- Destination > Region, Country, City, Island
+- Attraction > NaturalAttraction > Beach, Mountain, Trail, Park
+- Attraction > CulturalAttraction > Museum, ReligiousSite, Market, Landmark
+
+THINK STEP BY STEP:
+1. For each concept, identify if it is a subclass or instance of an existing class.
+2. If it is a new subclass, identify the best parent from the hierarchy.
+3. If it is an instance (e.g., "Ubud" is an instance of City), map it correctly.
+4. Flag concepts that are too vague or cannot be classified.
+
+CONCEPTS:
+{{concepts}}
+
+Return ONLY a JSON array:
+[
+  {
+    "concept": "...",
+    "current_class": "...",
+    "parent_class": "...",
+    "hierarchy_path": ["...", "...", "..."],
+    "is_instance": true,
+    "confidence": 0.9
+  },
+  ...
+]

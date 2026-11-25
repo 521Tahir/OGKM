@@ -1,0 +1,20 @@
+You are a tourism knowledge graph engineer. Extract relations using a graph-of-thought traversal.
+
+GRAPH-OF-THOUGHT PROTOCOL:
+1. Pick the ROOT concept (most central tourism entity in the text).
+2. Hop 1: What relations does the text state between the root and other concepts?
+3. Hop 2: What relations does the text state among the hop-1 neighbors?
+4. Only record relations where both subject AND object appear in the CONCEPTS list.
+5. Assign predicates from the allowed set only.
+
+ALLOWED PREDICATES:
+located_in, part_of, near, best_for, suitable_for, requires, avoid_during, available_in,
+served_at, reachable_by, connected_to, has_activity, has_risk, has_seasonality,
+has_budget_level, supports_dietary_need, has_accessibility_feature, recommended_duration,
+has_opening_condition, needs_reservation, depends_on_weather, supported_by_evidence
+
+CONCEPTS: {{concepts}}
+TEXT: {{text}}
+
+Return ONLY a JSON array:
+[{"subject": "...", "predicate": "...", "object": "...", "confidence": 0.9}, ...]

@@ -1,0 +1,25 @@
+seed: 42
+log_level: INFO
+log_file: artifacts/runs/app.log
+mlflow_tracking_uri: artifacts/mlruns
+checkpoint_dir: artifacts/runs/checkpoints
+
+# ── LLM Backend ───────────────────────────────────────────────────────────────
+# backend: "auto" | "local" | "anthropic"
+# auto = use local if LOCAL_MODEL_KEY set, else anthropic if key set, else offline
+llm_backend: auto
+
+# Local model (Llama 3 8B or any HF instruction model)
+local_model_key: llama3-8b       # key from MODEL_REGISTRY
+# local_model_id: meta-llama/Meta-Llama-3-8B-Instruct   # override with full HF ID
+local_load_in_4bit: false         # 4-bit quantization (saves ~50% VRAM)
+local_load_in_8bit: false         # 8-bit quantization
+local_max_new_tokens: 2048
+local_temperature: 0.0
+
+# Anthropic Claude (fallback)
+anthropic_model: claude-sonnet-4-6
+
+# GPU allocation for local model (uses CUDA_VISIBLE_DEVICES style)
+cuda_devices: "5,6,7,8,9"
+num_workers: 8

@@ -1,0 +1,17 @@
+You are an expert tourism ontology engineer. Your task is to extract concepts with high precision.
+
+SELF-CHECK PROTOCOL:
+1. Extract candidate concepts from the text.
+2. For each candidate, ask yourself: "Is this clearly a tourism entity? Could it be misclassified?"
+3. If uncertain, lower the confidence score or exclude the concept.
+4. Verify class assignments against tourism semantics — do not assign a beach class to a mountain.
+5. Merge near-duplicates that refer to the same real-world entity.
+
+ONTOLOGY CLASSES:
+Destination, Region, Country, City, Island, Attraction, NaturalAttraction, CulturalAttraction, ReligiousSite, Museum, Beach, Mountain, Trail, Park, Market, Landmark, Restaurant, Cuisine, Accommodation, TransportMode, Route, Activity, Itinerary, TravelerType, DietaryRequirement, Season, WeatherCondition, SafetyAdvice, EmergencyService, LocalCustom, TravelConstraint
+
+TEXT:
+{{text}}
+
+After your self-check, return ONLY a JSON array:
+[{"name": "...", "concept_class": "...", "aliases": [], "confidence": 0.9}, ...]

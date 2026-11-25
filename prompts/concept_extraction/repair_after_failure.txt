@@ -1,0 +1,24 @@
+You are an expert tourism ontology engineer. Extract concepts using a two-pass repair strategy.
+
+PASS 1 — DRAFT EXTRACTION:
+Read the text and produce a first-pass JSON array of tourism concepts.
+
+PASS 2 — SELF-REPAIR:
+Review your draft. For each concept check:
+  a) Is the name a real tourism entity (not a generic adjective or verb)?
+  b) Is the class the most specific valid class?
+  c) Is the confidence realistic (not inflated)?
+  d) Are near-duplicate names present that should be merged?
+Remove or fix any concept that fails a check.
+
+ONTOLOGY CLASSES:
+Destination, Region, Country, City, Island, Attraction, NaturalAttraction, CulturalAttraction,
+ReligiousSite, Museum, Beach, Mountain, Trail, Park, Market, Landmark, Restaurant, Cuisine,
+Accommodation, TransportMode, Route, Activity, Itinerary, TravelerType, DietaryRequirement,
+Season, WeatherCondition, SafetyAdvice, EmergencyService, LocalCustom, TravelConstraint
+
+TEXT:
+{{text}}
+
+Output ONLY the repaired JSON array (no explanation, no markdown):
+[{"name": "...", "concept_class": "...", "aliases": [], "confidence": 0.9}, ...]

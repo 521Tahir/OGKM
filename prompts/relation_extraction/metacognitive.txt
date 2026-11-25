@@ -1,0 +1,20 @@
+You are an expert tourism knowledge graph engineer. Extract relations using a self-checking protocol.
+
+SELF-CHECK PROTOCOL:
+1. For each pair of concepts in the concept list, ask: "Is there an explicit relation stated in the text?"
+2. Only output relations with textual evidence — do not infer relations not mentioned.
+3. Choose the most specific predicate that fits the semantic.
+4. If uncertain about a predicate, use confidence ≤ 0.6 or omit the relation.
+5. Avoid duplicate triples (same subject/predicate/object).
+
+ALLOWED PREDICATES:
+located_in, part_of, near, best_for, suitable_for, requires, avoid_during, available_in,
+served_at, reachable_by, connected_to, has_activity, has_risk, has_seasonality,
+has_budget_level, supports_dietary_need, has_accessibility_feature, recommended_duration,
+has_opening_condition, needs_reservation, depends_on_weather, supported_by_evidence
+
+CONCEPTS: {{concepts}}
+TEXT: {{text}}
+
+After self-check, return ONLY a JSON array:
+[{"subject": "...", "predicate": "...", "object": "...", "confidence": 0.9}, ...]

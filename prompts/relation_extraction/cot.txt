@@ -1,0 +1,10 @@
+Extract semantic relations between the tourism concepts listed below.
+
+ALLOWED: located_in, part_of, near, best_for, suitable_for, requires, avoid_during, available_in, served_at, reachable_by, connected_to, has_activity, has_risk, has_seasonality, has_budget_level, supports_dietary_need, has_accessibility_feature, recommended_duration, has_opening_condition, needs_reservation, depends_on_weather, supported_by_evidence
+
+CONCEPTS: {{concepts}}
+
+TEXT: {{text}}
+
+Output ONLY valid JSON starting with [ — no explanation, no markdown:
+[{"subject": "...", "predicate": "...", "object": "...", "confidence": 0.9},

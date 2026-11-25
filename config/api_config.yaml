@@ -1,0 +1,49 @@
+# Tourism Ontology RAG API — Configuration
+# All values here are defaults; override via environment variables (see comments).
+
+# ── Server ────────────────────────────────────────────────────────────────────
+server:
+  host: "0.0.0.0"          # override: API_HOST
+  port: 8000               # override: API_PORT
+  workers: 1               # override: API_WORKERS  (keep 1 when LLM is loaded)
+  reload: false            # override: API_RELOAD   (true for dev only)
+  prefix: "/api/v1"        # URL prefix for all routes
+
+# ── Ontology ──────────────────────────────────────────────────────────────────
+ontology:
+  version: "0.7.0"         # override: ONTOLOGY_VERSION
+  dir: "artifacts/ontologies"
+
+# ── LLM ───────────────────────────────────────────────────────────────────────
+llm:
+  load: false              # override: LOAD_LLM=1 to enable at startup
+  model_key: "llama3.1-8b"
+  load_in_4bit: true
+  gpu_ids: [5, 6]          # physical GPU indices — override: CUDA_VISIBLE_DEVICES
+
+# ── Rate limiting ─────────────────────────────────────────────────────────────
+rate_limiting:
+  enabled: true
+  # Limits use slowapi / limits syntax: "N/period"  (period = second|minute|hour)
+  default:   "60/minute"   # applied to all endpoints unless overridden
+  query:     "30/minute"   # /query  (heavy — LLM call)
+  benchmark: "5/minute"    # /benchmark (very heavy)
+  export:    "20/minute"   # /export-ontology
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+logging:
+  level: "INFO"            # override: LOG_LEVEL
+  format: "json"           # "json" | "text"
+  file: "logs/api.log"     # null to disable file logging; override: LOG_FILE
+  rotation: "50 MB"
+  retention: "14 days"
+
+# ── CORS ──────────────────────────────────────────────────────────────────────
+cors:
+  allow_origins: ["*"]     # restrict in production, e.g. ["https://your-frontend.com"]
+  allow_methods: ["*"]
+  allow_headers: ["*"]
+
+# ── Health check ──────────────────────────────────────────────────────────────
+health:
+  include_gpu: true        # whether /health checks GPU availability via torch

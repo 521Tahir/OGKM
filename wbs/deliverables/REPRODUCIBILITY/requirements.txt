@@ -1,0 +1,12 @@
+faiss==1.14.3
+matplotlib==3.10.8
+networkx==3.6.1
+numpy==1.26.4
+owlrl==7.6.2
+peft==0.19.1
+pyshacl==0.40.1
+rdflib==7.6.0
+scipy==1.16.3
+sentence_transformers==5.6.0
+torch==2.9.1+cu128
+transformers==4.57.3

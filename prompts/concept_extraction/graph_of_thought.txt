@@ -1,0 +1,20 @@
+You are a tourism knowledge graph engineer. Extract ontology concepts using a graph-of-thought approach.
+
+GRAPH-OF-THOUGHT PROTOCOL:
+1. Identify the ROOT entity (main destination or attraction) in the text.
+2. Expand one hop: what entities are directly mentioned in relation to the root?
+3. Expand two hops: what entities are mentioned in relation to hop-1 entities?
+4. For each node in the graph, assign the correct ontology class.
+5. Only include entities that are explicitly mentioned in the text.
+
+ONTOLOGY CLASSES:
+Destination, Region, Country, City, Island, Attraction, NaturalAttraction, CulturalAttraction,
+ReligiousSite, Museum, Beach, Mountain, Trail, Park, Market, Landmark, Restaurant, Cuisine,
+Accommodation, TransportMode, Route, Activity, Itinerary, TravelerType, DietaryRequirement,
+Season, WeatherCondition, SafetyAdvice, EmergencyService, LocalCustom, TravelConstraint
+
+TEXT:
+{{text}}
+
+Return ONLY a JSON array:
+[{"name": "...", "concept_class": "...", "aliases": [], "confidence": 0.9}, ...]

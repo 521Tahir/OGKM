@@ -1,0 +1,15 @@
+The following text was supposed to be a valid JSON array but could not be parsed.
+
+Please repair it and return ONLY valid JSON.
+
+Rules:
+- Fix missing quotes around strings
+- Fix trailing commas before ] or }
+- Fix unbalanced brackets
+- Do NOT change the semantic content
+- Return ONLY the repaired JSON, no explanations
+
+BROKEN JSON:
+{{broken_json}}
+
+REPAIRED JSON:

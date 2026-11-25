@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jeju Tourism Intelligence</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.30.2/cytoscape.min.js"></script>
+<style>
+:root{
+  --bg:#0a1424; --bg2:#0f1d33; --panel:#132442; --panel2:#182c50; --line:#22406e;
+  --ink:#e8f0fb; --ink2:#a8c0e0; --ink3:#7792b8;
+  --turq:#36d6c3; --blue:#4b9cf5; --violet:#a78bfa; --green:#4ade80;
+  --amber:#fbbf24; --rose:#fb7185; --gray:#8aa0bd;
+  --mono:"SF Mono",ui-monospace,"Cascadia Code",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased}
+a{color:var(--turq)}
+header{padding:22px 32px 16px;border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,#0d1a2e,#0a1424)}
+h1{margin:0;font-size:26px;letter-spacing:-.4px;font-weight:700}
+h1 .accent{color:var(--turq)}
+.sub{margin:6px 0 0;color:var(--ink2);font-size:13.5px;max-width:900px}
+.badge{display:inline-block;margin-top:10px;padding:3px 9px;border-radius:99px;
+  font-size:11px;font-weight:600;letter-spacing:.3px;background:#13324a;
+  color:var(--turq);border:1px solid #1d5068}
+nav{display:flex;gap:2px;flex-wrap:wrap;padding:0 24px;background:var(--bg2);
+  border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+nav button{background:none;border:0;border-bottom:2px solid transparent;color:var(--ink3);
+  padding:13px 15px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit}
+nav button:hover{color:var(--ink)}
+nav button.on{color:var(--turq);border-bottom-color:var(--turq)}
+main{padding:24px 32px 70px;max-width:1680px;margin:0 auto}
+.view{display:none} .view.on{display:block}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:18px 20px;margin-bottom:18px}
+.card h3{margin:0 0 4px;font-size:15px;letter-spacing:-.2px}
+.card .hint{margin:0 0 14px;color:var(--ink3);font-size:12.5px;line-height:1.55}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:1100px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+.tile{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.tile .k{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink3);font-weight:700}
+.tile .v{font-size:26px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}
+.tile .n{font-size:11.5px;color:var(--ink3);margin-top:2px}
+table{width:100%;border-collapse:collapse;font-size:12.8px}
+th,td{padding:7px 9px;text-align:left;border-bottom:1px solid #1b3355}
+th{color:var(--ink3);font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;font-weight:700}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono)}
+tr.best td{background:#102e3a}
+.win{color:var(--turq);font-weight:700} .lose{color:var(--rose)}
+.pill{display:inline-block;padding:2px 7px;border-radius:5px;font-size:10.5px;font-weight:700}
+.pill.ok{background:#0f3b2e;color:var(--green)} .pill.no{background:#3d1722;color:var(--rose)}
+.pill.warn{background:#3b2f10;color:var(--amber)}
+select,input,button.btn{background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+  border-radius:8px;padding:8px 11px;font-size:13px;font-family:inherit}
+button.btn{cursor:pointer;font-weight:600}
+button.btn:hover{border-color:var(--turq);color:var(--turq)}
+button.btn.pri{background:var(--turq);color:#06231f;border-color:var(--turq)}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+pre{background:#091426;border:1px solid var(--line);border-radius:9px;padding:13px;
+  font-family:var(--mono);font-size:11.6px;line-height:1.6;color:#cfe0f5;
+  white-space:pre-wrap;word-break:break-word;max-height:380px;overflow:auto;margin:0}
+pre.tall{max-height:620px}
+details{border:1px solid var(--line);border-radius:9px;margin-bottom:9px;background:var(--panel2)}
+details summary{cursor:pointer;padding:10px 13px;font-size:12.8px;font-weight:600;
+  color:var(--ink2);list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary:before{content:"▸ ";color:var(--turq)}
+details[open] summary:before{content:"▾ "}
+details .body{padding:0 13px 13px}
+.stage{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px dashed #1b3355}
+.stage:last-child{border-bottom:0}
+.stage .n{flex:0 0 24px;height:24px;border-radius:50%;background:#13324a;color:var(--turq);
+  display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:800}
+.stage.rag .n{background:#122c46;color:var(--blue)}
+.stage .t{font-size:13px;font-weight:600}
+.stage .d{font-size:11.8px;color:var(--ink3);margin-top:2px;line-height:1.5;font-family:var(--mono)}
+#cy{width:100%;height:620px;background:#081222;border:1px solid var(--line);border-radius:10px}
+.insp{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px;
+  font-size:12.5px;max-height:620px;overflow:auto}
+.insp h4{margin:0 0 3px;font-size:14px;color:var(--turq)}
+.insp .kv{display:grid;grid-template-columns:96px 1fr;gap:3px 9px;margin-top:9px}
+.insp .kv div:nth-child(odd){color:var(--ink3);font-size:11px;text-transform:uppercase;
+  letter-spacing:.6px;font-weight:700;padding-top:2px}
+.insp ul{margin:5px 0 0;padding-left:16px} .insp li{margin:2px 0;line-height:1.45}
+.legend{display:flex;gap:13px;flex-wrap:wrap;font-size:11.5px;color:var(--ink2);margin-top:9px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}
+.bar{height:9px;border-radius:5px;background:#16294a;overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:5px}
+.note{font-size:12px;color:var(--ink3);line-height:1.6;border-left:2px solid var(--line);
+  padding-left:11px;margin:11px 0}
+.warnbox{background:#2a1d10;border:1px solid #5c3d12;color:#fcd9a0;border-radius:9px;
+  padding:11px 13px;font-size:12.3px;line-height:1.6;margin-bottom:14px}
+svg text{font-family:inherit}
+.qsel{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px}
+.qsel button{background:var(--panel2);border:1px solid var(--line);color:var(--ink2);
+  border-radius:8px;padding:9px 13px;cursor:pointer;font-size:12.5px;text-align:left;
+  font-family:inherit;max-width:400px}
+.qsel button.on{border-color:var(--turq);color:var(--ink);background:#102a3f}
+.qsel button b{display:block;color:var(--turq);font-size:11px;letter-spacing:.5px}
+footer{padding:20px 32px;border-top:1px solid var(--line);color:var(--ink3);font-size:11.5px}
+</style>
+</head>
+<body>
+<header>
+  <h1>JEJU TOURISM <span class="accent">INTELLIGENCE</span></h1>
+  <p class="sub">An Interactive Comparison of Retrieval-Augmented Generation and
+     Ontology-Grounded Question Answering</p>
+  <span class="badge" id="runbadge">RECORDED RUN — real inference traces</span>
+</header>
+<nav id="nav"></nav>
+<main>
+  <section class="view on" id="v-home"></section>
+  <section class="view" id="v-compare"></section>
+  <section class="view" id="v-rag"></section>
+  <section class="view" id="v-onto"></section>
+  <section class="view" id="v-explorer"></section>
+  <section class="view" id="v-qual"></section>
+  <section class="view" id="v-dash"></section>
+</main>
+<footer id="foot"></footer>
+
+<script id="bundle" type="application/json">__BUNDLE__</script>
+<script>
+const B = JSON.parse(document.getElementById('bundle').textContent);
+const QIDS = ['Q1','Q2','Q3'];
+const CLASS_COLOR = {
+  Destination:'#4b9cf5', Region:'#4b9cf5', City:'#4b9cf5', Island:'#4b9cf5',
+  NaturalAttraction:'#4ade80', Mountain:'#4ade80', Beach:'#4ade80', Trail:'#4ade80',
+  Park:'#4ade80', CulturalAttraction:'#a78bfa', Museum:'#a78bfa',
+  ReligiousSite:'#a78bfa', LocalCustom:'#a78bfa',
+  TransportMode:'#fbbf24', Transportation:'#fbbf24', Route:'#fbbf24',
+  Cuisine:'#fb7185', Restaurant:'#fb7185', Market:'#fb7185',
+  Activity:'#36d6c3', Attraction:'#36d6c3', Landmark:'#36d6c3',
+  Season:'#8aa0bd', WeatherCondition:'#8aa0bd', ObjectValue:'#60708a',
+};
+const col = k => CLASS_COLOR[k] || '#8aa0bd';
+const esc = s => String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const fx = (v,d=4) => v==null?'—':Number(v).toFixed(d);
+const el = (h) => { const t=document.createElement('template'); t.innerHTML=h.trim(); return t.content.firstChild; };
+
+/* ───────── navigation ───────── */
+const VIEWS = [['home','Home'],['compare','Live Query Comparison'],['rag','RAG Pipeline'],
+  ['onto','Ontology Pipeline'],['explorer','Ontology Explorer'],
+  ['qual','Qualitative Analysis'],['dash','Evaluation Dashboard']];
+const nav = document.getElementById('nav');
+VIEWS.forEach(([id,label],i)=>{
+  const b=document.createElement('button');
+  b.textContent=label; b.className=i===0?'on':'';
+  b.onclick=()=>{
+    document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+    document.getElementById('v-'+id).classList.add('on');
+    if(id==='explorer') ensureGraph();
+  };
+  nav.appendChild(b);
+});
+
+/* ───────── HOME ───────── */
+(function(){
+  const s=B.ontology.stats, m=B.meta;
+  const sc=B.scores.per_query;
+  const agg=a=>(QIDS.reduce((t,q)=>t+sc[q][a].composite_0_100,0)/3);
+  document.getElementById('v-home').innerHTML = `
+  <div class="card">
+    <h3>What this demonstration shows</h3>
+    <p class="hint">Two question-answering systems answer the same Jeju tourism questions on
+      the same fine-tuned model, differing only in what knowledge is injected into the prompt.
+      <b>Simple RAG</b> retrieves top-5 dense passages from ${(+s.relations>0?B.rag.Q1.stage_3_corpus_size.toLocaleString():'—')}
+      training answers. <b>Ontology-grounded QA</b> retrieves typed entities and triples from a
+      ${s.typed_concepts.toLocaleString()}-concept knowledge graph. Every number, prompt,
+      retrieval result and answer on these pages comes from a recorded run of the real pipeline.</p>
+    <div class="grid4">
+      <div class="tile"><div class="k">Ontology concepts</div><div class="v">${s.typed_concepts.toLocaleString()}</div><div class="n">v${B.ontology.version}, ${s.concept_classes} classes</div></div>
+      <div class="tile"><div class="k">Relations</div><div class="v">${s.relations.toLocaleString()}</div><div class="n">${s.distinct_predicates} distinct predicates</div></div>
+      <div class="tile"><div class="k">RAG corpus</div><div class="v">${B.rag.Q1.stage_3_corpus_size.toLocaleString()}</div><div class="n">train-split passages</div></div>
+      <div class="tile"><div class="k">Gazetteer places</div><div class="v">${s.gazetteer_places}</div><div class="n">with coordinates — ground truth</div></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Three-query demonstration result</h3>
+      <p class="hint">Composite score 0–100 from the weighted rubric (factual 30%, constraints 25%,
+         grounding 20%, completeness 15%, hallucination-avoidance 10%). Three queries is a
+         <b>demonstration</b>, not statistical evidence — the full-dataset result is on the dashboard.</p>
+      <table><thead><tr><th>Query</th><th class="num">Simple RAG</th><th class="num">Ontology</th><th>Winner</th></tr></thead><tbody>
+      ${QIDS.map(q=>{const r=sc[q].rag.composite_0_100,o=sc[q].onto_v3.composite_0_100;
+        return `<tr><td>${q} — ${esc(B.queries[q].title)}</td>
+        <td class="num ${r>o?'win':''}">${r.toFixed(1)}</td>
+        <td class="num ${o>r?'win':''}">${o.toFixed(1)}</td>
+        <td>${o>r?'<span class="pill ok">Ontology</span>':'<span class="pill warn">RAG</span>'}</td></tr>`;}).join('')}
+      <tr class="best"><td><b>Mean of 3</b></td><td class="num"><b>${agg('rag').toFixed(1)}</b></td>
+        <td class="num"><b>${agg('onto_v3').toFixed(1)}</b></td><td>—</td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <h3>Controlled comparison</h3>
+      <p class="hint">Everything except retrieval is held identical.</p>
+      <table><tbody>
+        <tr><th>Base model</th><td>${esc(m.model)} — <span style="font-family:var(--mono)">${esc(m.hf_id)}</span></td></tr>
+        <tr><th>Adapters</th><td>${esc(m.adapters)}, one per arm so neither is advantaged</td></tr>
+        <tr><th>Decoding</th><td>${esc(m.decoding)}</td></tr>
+        <tr><th>Context budget</th><td>${m.ctx_budget_chars.toLocaleString()} characters, identical both arms</td></tr>
+        <tr><th>Retriever</th><td><span style="font-family:var(--mono)">${esc(m.embed_model)}</span> + FAISS IndexFlatIP</td></tr>
+        <tr><th>Ontology</th><td>v${esc(m.ontology_version)}</td></tr>
+        <tr><th>Captured</th><td>${esc(m.captured)}</td></tr>
+      </tbody></table>
+    </div>
+  </div>`;
+})();
+
+/* ───────── shared: query selector ───────── */
+function qSelector(onPick, initial){
+  let cur = initial || 'Q1';
+  const wrap = el('<div class="qsel"></div>');
+  QIDS.forEach(q=>{
+    const b=document.createElement('button');
+    b.className = q===cur?'on':'';
+    b.innerHTML = `<b>${q}</b>${esc(B.queries[q].title)}`;
+    b.onclick=()=>{ cur=q; [...wrap.children].forEach(c=>c.classList.remove('on'));
+      b.classList.add('on'); onPick(q); };
+    wrap.appendChild(b);
+  });
+  return wrap;
+}
+
+/* ───────── LIVE QUERY COMPARISON ───────── */
+(function(){
+  const root=document.getElementById('v-compare');
+  const head=el(`<div class="card">
+    <h3>Side-by-side execution on the same question</h3>
+    <p class="hint">Both columns are the recorded real run. Stage timings are measured wall-clock,
+       not animation timing. Pick a query, then press Run Comparison to step the stages.</p>
+    <div class="row"><input id="freeq" style="flex:1;min-width:300px" placeholder="Type your own question (needs the backend for live inference — disabled in recorded mode)">
+      <button class="btn pri" id="runbtn">▶ Run Comparison</button>
+      <button class="btn" id="resetbtn">Reset</button></div>
+  </div>`);
+  root.appendChild(head);
+  let cur='Q1';
+  const sel=qSelector(q=>{cur=q;render();},'Q1'); root.insertBefore(sel, head.nextSibling);
+  const body=el('<div></div>'); root.appendChild(body);
+
+  function stageList(arm,q){
+    if(arm==='rag'){
+      const r=B.rag[q];
+      return [['Query received', esc(r.stage_1_query.slice(0,120))+'…'],
+        ['Query embedding', `${r.stage_2_embed_model} · prefix "${esc(r.stage_2_query_prefix.slice(0,38))}…" · ${r.timing_ms.embed} ms`],
+        ['Document collection', `${r.stage_3_corpus_size.toLocaleString()} train-split passages`],
+        ['Retriever search', `${r.stage_4_index} · ${r.timing_ms.search} ms`],
+        ['Top-k passages', `k=${r.stage_5_top_k} → ${r.stage_6_hits.length} unique, cosine ${r.stage_6_hits.length?r.stage_6_hits[0].cosine:'—'} … ${r.stage_6_hits.length?r.stage_6_hits[r.stage_6_hits.length-1].cosine:'—'}`],
+        ['Context construction', `${r.stage_7_context.length.toLocaleString()} chars (budget ${B.meta.ctx_budget_chars.toLocaleString()})`],
+        ['Prompt construction', `${B.answers[q].rag.prompt_tokens.toLocaleString()} prompt tokens`],
+        ['LLM generation', `${B.answers[q].rag.answer_tokens} tokens in ${B.answers[q].rag.generation_s}s`],
+        ['Final answer', 'see below']];
+    }
+    const o=B.onto[q];
+    return [['Query received', esc(o.stage_1_query.slice(0,120))+'…'],
+      ['Entity recognition', `dense match over ${o.stage_3_card_index_size.toLocaleString()} entity cards`],
+      ['Intent → class routing', o.stage_2_intent_classes.join(', ')],
+      ['Concept mapping', `${o.stage_4_entity_cards.length} entities selected, cosine ${o.stage_4_entity_cards.length?o.stage_4_entity_cards[0].cosine:'—'} … ${o.stage_4_entity_cards.length?o.stage_4_entity_cards[o.stage_4_entity_cards.length-1].cosine:'—'}`],
+      ['Relation retrieval', `${o.stage_5_triples_in_context.length} triples placed in context`],
+      ['Subgraph extraction', `${o.stage_4_entity_cards.length} nodes + their asserted relations · ${o.timing_ms.retrieve} ms`],
+      ['Grounded prompt', `${B.answers[q].onto_v3.prompt_tokens.toLocaleString()} prompt tokens`],
+      ['LLM generation', `${B.answers[q].onto_v3.answer_tokens} tokens in ${B.answers[q].onto_v3.generation_s}s`],
+      ['Final answer', 'see below']];
+  }
+
+  function render(reveal){
+    const q=cur, sc=B.scores.per_query[q];
+    const mk=(arm,label,cls)=>{
+      const st=stageList(arm,q), n=reveal==null?st.length:Math.min(reveal,st.length);
+      const a=B.answers[q][arm];
+      return `<div class="card"><h3 style="color:${cls}">${label}</h3>
+        <p class="hint">adapter <span style="font-family:var(--mono)">${esc(a.adapter)}</span> ·
+           retrieval ${a.retrieval_ms.toFixed(1)} ms · generation ${a.generation_s}s</p>
+        <div>${st.slice(0,n).map((s,i)=>`<div class="stage ${arm==='rag'?'rag':''}">
+          <div class="n">${i+1}</div><div><div class="t">${s[0]}</div><div class="d">${s[1]}</div></div></div>`).join('')}</div>
+        ${n>=st.length?`<details open style="margin-top:12px"><summary>Generated answer</summary>
+          <div class="body"><pre>${esc(a.answer)}</pre></div></details>
+          <div class="grid4" style="margin-top:12px">
+            <div class="tile"><div class="k">Composite</div><div class="v" style="color:${cls}">${sc[arm].composite_0_100.toFixed(1)}</div></div>
+            <div class="tile"><div class="k">Constraints</div><div class="v">${(sc[arm].C_constraints*100).toFixed(0)}%</div></div>
+            <div class="tile"><div class="k">Grounded</div><div class="v">${(sc[arm].G_grounding*100).toFixed(0)}%</div></div>
+            <div class="tile"><div class="k">Unsupported</div><div class="v" style="color:${sc[arm].unsupported_claims.length?'var(--rose)':'var(--green)'}">${sc[arm].unsupported_claims.length}</div></div>
+          </div>`:''}
+      </div>`;
+    };
+    body.innerHTML = `<div class="card"><h3>Question</h3><pre>${esc(B.queries[q].text)}</pre>
+      <p class="hint" style="margin-top:10px">Tests: ${B.queries[q].tests.join(' · ')}</p></div>
+      <div class="grid2">${mk('rag','Standard RAG','var(--blue)')}${mk('onto_v3','Ontology-Grounded QA','var(--turq)')}</div>`;
+  }
+  head.querySelector('#runbtn').onclick=()=>{
+    let i=1; render(i);
+    const t=setInterval(()=>{ i++; render(i); if(i>9){clearInterval(t);} }, 420);
+  };
+  head.querySelector('#resetbtn').onclick=()=>render();
+  render();
+})();
+
+/* ───────── RAG PIPELINE ───────── */
+(function(){
+  const root=document.getElementById('v-rag');
+  let cur='Q1';
+  const sel=qSelector(q=>{cur=q;render();},'Q1'); root.appendChild(sel);
+  const body=el('<div></div>'); root.appendChild(body);
+  function render(){
+    const r=B.rag[cur], a=B.answers[cur].rag;
+    body.innerHTML=`
+    <div class="card"><h3>Retrieved passages — with real cosine scores</h3>
+      <p class="hint">Dense retrieval over ${r.stage_3_corpus_size.toLocaleString()} train-split answers using
+        <span style="font-family:var(--mono)">${esc(r.stage_2_embed_model)}</span>.
+        Embedding ${r.timing_ms.embed} ms, index search ${r.timing_ms.search} ms.</p>
+      ${r.stage_6_hits.map(h=>`<details><summary>[${h.rank}] cosine ${h.cosine} · record ${h.record_id} · ${esc(h.source_question.slice(0,88))}…</summary>
+        <div class="body"><pre>${esc(h.passage)}</pre></div></details>`).join('') || '<p class="hint">no passages retrieved</p>'}
+    </div>
+    <div class="card"><h3>Full instantiated prompt</h3>
+      <p class="hint">${a.prompt_tokens.toLocaleString()} tokens as counted by the model's own tokenizer.
+         This is the exact string sent to the model, not a reconstruction.</p>
+      <div class="row"><button class="btn" onclick="navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('ragprompt').textContent)">Copy prompt</button>
+        <button class="btn" onclick="dl('rag_prompt_${cur}.txt',document.getElementById('ragprompt').textContent)">Download</button></div>
+      <pre class="tall" id="ragprompt">${esc(a.prompt)}</pre>
+    </div>
+    <div class="card"><h3>Generated answer</h3>
+      <p class="hint">${a.answer_tokens} tokens, ${a.generation_s}s, greedy decoding</p>
+      <pre>${esc(a.answer)}</pre></div>`;
+  }
+  render();
+})();
+
+/* ───────── ONTOLOGY PIPELINE ───────── */
+(function(){
+  const root=document.getElementById('v-onto');
+  let cur='Q1';
+  const sel=qSelector(q=>{cur=q;render();},'Q1'); root.appendChild(sel);
+  const body=el('<div></div>'); root.appendChild(body);
+  function render(){
+    const o=B.onto[cur], a=B.answers[cur].onto_v3;
+    body.innerHTML=`
+    <div class="card"><h3>Intent → ontology class routing</h3>
+      <p class="hint">The question names no specific place, so the retriever maps its intent onto
+         ontology classes and pulls the most-connected entities of each.</p>
+      <div class="row">${o.stage_2_intent_classes.map(c=>`<span class="pill" style="background:${col(c)}22;color:${col(c)}">${esc(c)}</span>`).join('')}</div>
+    </div>
+    <div class="card"><h3>Selected entity cards and their triples</h3>
+      <p class="hint">${o.stage_4_entity_cards.length} entities from a
+        ${o.stage_3_card_index_size.toLocaleString()}-card index · retrieval ${o.timing_ms.retrieve} ms.
+        Each fact shown here is an assertion that exists in ontology v${B.ontology.version}.</p>
+      ${o.stage_4_entity_cards.map(c=>`<details><summary>${esc(c.entity)} <span class="pill" style="background:${col(c.concept_class)}22;color:${col(c.concept_class)}">${esc(c.concept_class||'—')}</span> cosine ${c.cosine}</summary>
+        <div class="body"><ul style="margin:0;padding-left:17px;font-size:12.4px;line-height:1.65">
+        ${c.facts.map(f=>`<li style="font-family:var(--mono)">${esc(f)}</li>`).join('')}</ul></div></details>`).join('')}
+    </div>
+    <div class="card"><h3>Triples placed in the LLM context</h3>
+      <p class="hint">${o.stage_5_triples_in_context.length} triples — this is exactly what the model saw.</p>
+      <pre class="tall">${o.stage_5_triples_in_context.map(t=>'• '+esc(t)).join('\n')}</pre></div>
+    <div class="card"><h3>Full ontology-grounded prompt</h3>
+      <p class="hint">${a.prompt_tokens.toLocaleString()} tokens. This panel answers the question
+         "how is the ontology used for prompting?" — the facts above are serialised into the
+         context block below, under an explicit header, then the question follows.</p>
+      <div class="row"><button class="btn" onclick="navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('ontoprompt').textContent)">Copy prompt</button>
+        <button class="btn" onclick="dl('onto_prompt_${cur}.txt',document.getElementById('ontoprompt').textContent)">Download</button></div>
+      <pre class="tall" id="ontoprompt">${esc(a.prompt)}</pre></div>
+    <div class="card"><h3>Generated answer</h3>
+      <p class="hint">${a.answer_tokens} tokens, ${a.generation_s}s, greedy decoding</p>
+      <pre>${esc(a.answer)}</pre></div>`;
+  }
+  render();
+})();
+
+function dl(name,text){
+  const b=new Blob([text],{type:'text/plain'}), u=URL.createObjectURL(b);
+  const a=document.createElement('a'); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u);
+}
+
+/* ───────── ONTOLOGY EXPLORER ───────── */
+let cy=null, graphReady=false;
+function ensureGraph(){ if(!graphReady){ buildExplorer(); graphReady=true; } }
+function buildExplorer(){
+  const root=document.getElementById('v-explorer');
+  const s=B.ontology.stats;
+  root.innerHTML=`
+  <div class="card">
+    <h3>Complete Jeju tourism ontology — v${B.ontology.version}</h3>
+    <p class="hint">This is the real graph the question-answering system queries, loaded from
+      <span style="font-family:var(--mono)">${esc(B.ontology.source_files[0].split('/').slice(-3).join('/'))}</span> and its siblings.
+      ${s.graph_nodes.toLocaleString()} nodes and ${s.relations.toLocaleString()} relations cannot all be
+      legible at once, so the viewer expands on demand — every node and every relation is reachable
+      through search and expansion.</p>
+    <div class="grid4">
+      <div class="tile"><div class="k">Typed concepts</div><div class="v">${s.typed_concepts.toLocaleString()}</div></div>
+      <div class="tile"><div class="k">Relations</div><div class="v">${s.relations.toLocaleString()}</div></div>
+      <div class="tile"><div class="k">Concept classes</div><div class="v">${s.concept_classes}</div></div>
+      <div class="tile"><div class="k">Class-tree edges</div><div class="v">${s.hierarchy_edges}</div></div>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <select id="mode">
+        <option value="A">Mode A — class hierarchy</option>
+        <option value="B">Mode B — instance network (progressive)</option>
+        <option value="C">Mode C — query subgraph</option>
+        <option value="D">Mode D — reasoning path</option>
+        <option value="E">Mode E — full ontology (all concepts &amp; relations)</option>
+      </select>
+      <select id="qpick">${QIDS.map(q=>`<option value="${q}">${q}</option>`).join('')}</select>
+      <input id="search" placeholder="Search entity or class…" style="min-width:210px">
+      <select id="predf"><option value="">all predicates</option>
+        ${B.ontology.predicate_counts.map(([p,c])=>`<option value="${esc(p)}">${esc(p)} (${c})</option>`).join('')}</select>
+      <select id="classf"><option value="">all classes</option>
+        ${B.ontology.class_counts.map(([k,c])=>`<option value="${esc(k)}">${esc(k)} (${c})</option>`).join('')}</select>
+      <button class="btn" id="expandall">Expand reachable</button>
+      <button class="btn" id="collapse">Collapse</button>
+      <button class="btn" id="reset">Reset</button>
+      <button class="btn" id="png">Export PNG</button>
+    </div>
+    <div class="legend">${Object.entries({Destination:'classes & destinations',NaturalAttraction:'natural',CulturalAttraction:'cultural',TransportMode:'transport',Cuisine:'food',Activity:'activity',ObjectValue:'attribute value'}).map(([k,l])=>`<span><i style="background:${col(k)}"></i>${l}</span>`).join('')}</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 340px;gap:18px">
+    <div id="cy"></div>
+    <div class="insp" id="insp"><h4>Inspector</h4>
+      <p class="hint">Click a node to expand its relations and see its class, attributes and provenance.
+        Double-click expands another level.</p></div>
+  </div>`;
+
+  const NODES=new Map(B.ontology.nodes.map(n=>[n.id,n]));
+  const ADJ=new Map();
+  B.ontology.edges.forEach((e,i)=>{
+    if(!ADJ.has(e.s)) ADJ.set(e.s,[]); ADJ.get(e.s).push(i);
+    if(!ADJ.has(e.o)) ADJ.set(e.o,[]); ADJ.get(e.o).push(i);
+  });
+
+  cy=cytoscape({container:document.getElementById('cy'), minZoom:.15, maxZoom:3,
+    style:[
+      {selector:'node',style:{'background-color':'data(c)','label':'data(label)',
+        'color':'#dce8f8','font-size':9,'text-valign':'center','text-halign':'right',
+        'text-margin-x':4,'width':'data(sz)','height':'data(sz)','border-width':0,
+        'text-background-color':'#081222','text-background-opacity':.72,
+        'text-background-padding':2,'text-max-width':120,'text-wrap':'ellipsis'}},
+      {selector:'node.cls',style:{'shape':'round-rectangle','width':'label','padding':7,
+        'font-size':11,'font-weight':'bold','text-halign':'center','text-margin-x':0}},
+      {selector:'node:selected',style:{'border-width':3,'border-color':'#36d6c3'}},
+      {selector:'node.hl',style:{'border-width':3,'border-color':'#fbbf24'}},
+      {selector:'edge',style:{'width':1,'line-color':'#2a4a7a','target-arrow-color':'#2a4a7a',
+        'target-arrow-shape':'triangle','arrow-scale':.65,'curve-style':'bezier',
+        'label':'data(p)','font-size':7.5,'color':'#7f9cc4','text-rotation':'autorotate',
+        'text-background-color':'#081222','text-background-opacity':.8,'text-background-padding':1}},
+      {selector:'edge.hl',style:{'width':2.6,'line-color':'#fbbf24','target-arrow-color':'#fbbf24','color':'#fcd9a0','font-size':9}},
+    ]});
+
+  const sz=n=>Math.max(9,Math.min(30,8+Math.sqrt(n.degree||0)*2.6));
+  function addNode(id,extraClass){
+    if(cy.getElementById(id).nonempty()) return;
+    const n=NODES.get(id)||{id,label:id,klass:'ObjectValue',degree:0};
+    cy.add({group:'nodes',data:{id,label:n.label,c:col(n.klass),sz:sz(n),klass:n.klass},
+      classes:extraClass||''});
+  }
+  function addEdgeIdx(i){
+    const e=B.ontology.edges[i], id='e'+i;
+    if(cy.getElementById(id).nonempty()) return;
+    if(cy.getElementById(e.s).empty()||cy.getElementById(e.o).empty()) return;
+    cy.add({group:'edges',data:{id,source:e.s,target:e.o,p:e.p,conf:e.conf}});
+  }
+  function expand(id,limit){
+    const pf=document.getElementById('predf').value, cf=document.getElementById('classf').value;
+    let added=0;
+    (ADJ.get(id)||[]).forEach(i=>{
+      if(added>=(limit||40)) return;
+      const e=B.ontology.edges[i];
+      if(pf && e.p!==pf) return;
+      const other=e.s===id?e.o:e.s;
+      const on=NODES.get(other);
+      if(cf && on && on.klass!==cf) return;
+      addNode(other); addEdgeIdx(i); added++;
+    });
+    return added;
+  }
+  function relayout(){ cy.layout({name:'cose',animate:false,nodeRepulsion:9000,
+    idealEdgeLength:70,numIter:450,randomize:false}).run(); }
+
+  function inspect(id){
+    const n=NODES.get(id)||{id,label:id,klass:'ObjectValue'};
+    const outs=[],ins=[];
+    (ADJ.get(id)||[]).forEach(i=>{const e=B.ontology.edges[i];
+      (e.s===id?outs:ins).push(e);});
+    const inst=(B.ontology.instances||[]).find(x=>x.concept===id);
+    document.getElementById('insp').innerHTML=`<h4>${esc(n.label)}</h4>
+      <div class="kv">
+        <div>class</div><div><span class="pill" style="background:${col(n.klass)}22;color:${col(n.klass)}">${esc(n.klass)}</span></div>
+        <div>identifier</div><div style="font-family:var(--mono);font-size:11px">${esc(id)}</div>
+        <div>degree</div><div>${n.degree||0} relations</div>
+        ${inst?`<div>path</div><div style="font-size:11.5px">${inst.path.map(esc).join(' › ')}</div>`:''}
+        ${n.aliases&&n.aliases.length?`<div>aliases</div><div>${n.aliases.map(esc).join('; ')}</div>`:''}
+        ${n.attrs&&Object.keys(n.attrs).length?`<div>attributes</div><div style="font-family:var(--mono);font-size:11px">${Object.entries(n.attrs).map(([k,v])=>k+'='+esc(v)).join('<br>')}</div>`:''}
+        ${n.provenance&&n.provenance.confidence!=null?`<div>provenance</div><div style="font-size:11.5px">confidence ${n.provenance.confidence}${n.provenance.validator?' · '+esc(n.provenance.validator):''}${n.provenance.source_record_id!=null?' · record '+n.provenance.source_record_id:''}</div>`:''}
+      </div>
+      <div style="margin-top:12px"><b style="font-size:12px;color:var(--ink2)">Outgoing (${outs.length})</b>
+      <ul>${outs.slice(0,22).map(e=>`<li><span style="color:var(--turq)">${esc(e.p)}</span> → ${esc(e.o)}</li>`).join('')||'<li>none</li>'}</ul></div>
+      <div style="margin-top:9px"><b style="font-size:12px;color:var(--ink2)">Incoming (${ins.length})</b>
+      <ul>${ins.slice(0,22).map(e=>`<li>${esc(e.s)} <span style="color:var(--turq)">${esc(e.p)}</span> →</li>`).join('')||'<li>none</li>'}</ul></div>
+      <div class="row" style="margin-top:11px"><button class="btn" id="expbtn">Expand relations</button>
+        <button class="btn" id="colbtn">Collapse branch</button></div>`;
+    const eb=document.getElementById('expbtn');
+    if(eb) eb.onclick=()=>{expand(id,60);relayout();};
+    const cb=document.getElementById('colbtn');
+    if(cb) cb.onclick=()=>{cy.getElementById(id).neighborhood('node').filter(n2=>n2.degree()<=1).remove();};
+  }
+
+  function modeA(){
+    cy.elements().remove();
+    const seen=new Set();
+    B.ontology.hierarchy.forEach(h=>{
+      [h.parent,h.child].forEach(c=>{ if(!seen.has(c)){seen.add(c);
+        cy.add({group:'nodes',data:{id:'C:'+c,label:c,c:col(c),sz:16},classes:'cls'});}});
+      cy.add({group:'edges',data:{id:'h:'+h.parent+'>'+h.child,source:'C:'+h.parent,
+        target:'C:'+h.child,p:'subClassOf'}});
+    });
+    cy.layout({name:'breadthfirst',directed:true,spacingFactor:1.25,animate:false}).run();
+    document.getElementById('insp').innerHTML='<h4>Class hierarchy</h4><p class="hint">'+
+      B.ontology.stats.hierarchy_edges+' subclass edges from '+B.ontology.stats.class_tree_roots+
+      ' root(s). Switch to Mode B to explore instances.</p>';
+  }
+  function modeB(seedN){
+    cy.elements().remove();
+    const seeds=[...NODES.values()].sort((a,b)=>b.degree-a.degree).slice(0,seedN||26);
+    seeds.forEach(n=>addNode(n.id));
+    seeds.forEach(n=>expand(n.id,7));
+    relayout();
+    document.getElementById('insp').innerHTML='<h4>Instance network</h4><p class="hint">Showing the '+
+      seeds.length+' highest-degree entities and a sample of their relations, of '+
+      B.ontology.stats.graph_nodes.toLocaleString()+' total. Click any node to expand further, or search to jump.</p>';
+  }
+  function modeC(q){
+    cy.elements().remove();
+    const ents=B.onto[q].stage_4_entity_cards.map(c=>c.entity).filter(Boolean);
+    ents.forEach(e=>addNode(e));
+    ents.forEach(e=>expand(e,8));
+    cy.nodes().forEach(n=>{ if(ents.includes(n.id())) n.addClass('hl'); });
+    relayout();
+    document.getElementById('insp').innerHTML='<h4>Query subgraph — '+q+'</h4><p class="hint">'+
+      ents.length+' entities were retrieved for this question and '+
+      B.onto[q].stage_5_triples_in_context.length+' of their triples entered the prompt. '+
+      'Highlighted nodes are the retrieved entities.</p>';
+  }
+  function modeD(q){
+    modeC(q);
+    // highlight edges whose verbalisation actually appears in the prompt context
+    const ctx=(B.onto[q].stage_6_context||'').toLowerCase();
+    let n=0;
+    cy.edges().forEach(e=>{
+      const s=e.data('source').toLowerCase(), p=e.data('p').replace(/_/g,' ').toLowerCase(),
+            o=e.data('target').toLowerCase();
+      if(ctx.includes(s)&&ctx.includes(o)&&ctx.includes(p)){ e.addClass('hl'); n++; }
+    });
+    document.getElementById('insp').innerHTML='<h4>Reasoning path — '+q+'</h4><p class="hint">'+
+      n+' of the displayed relations are verbatim present in the prompt the model received '+
+      '(amber). These are the asserted facts the answer could have been grounded on.</p>';
+  }
+  // Mode E: every concept and every relation at once. Nodes are grouped into one
+  // cluster per ontology class (phyllotaxis inside each cluster, highest-degree
+  // entities at the centre); the class nodes themselves sit in the middle ring.
+  // Positions are computed directly, so the full graph appears instantly.
+  function modeE(){
+    cy.elements().remove();
+    const pf=document.getElementById('predf').value, cf=document.getElementById('classf').value;
+    const groups=new Map();
+    B.ontology.nodes.forEach(n=>{ if(cf && n.klass!==cf && n.klass!=='OntologyClass') return;
+      if(!groups.has(n.klass)) groups.set(n.klass,[]); groups.get(n.klass).push(n); });
+    groups.forEach(g=>g.sort((a,b)=>(b.degree||0)-(a.degree||0)));
+    const SP=15, rad=k=>SP*Math.sqrt(k)+30;
+    const centre=groups.get('OntologyClass')||[];
+    const ring=[...groups.entries()].filter(([k])=>k!=='OntologyClass').sort((a,b)=>b[1].length-a[1].length);
+    // arrange clusters on one ring; circumference = sum of cluster diameters + gaps
+    const circ=ring.reduce((s,[,g])=>s+2*rad(g.length)+60,0);
+    const R=Math.max(circ/(2*Math.PI), rad(centre.length)+rad(ring[0]?ring[0][1].length:1)+120);
+    const els=[]; let ang=0; const GA=Math.PI*(3-Math.sqrt(5));
+    const place=(g,cx,cy0,k)=>g.forEach((n,i)=>{ const r=SP*Math.sqrt(i+.5), t=i*GA;
+      els.push({group:'nodes',data:{id:n.id,label:n.label,c:col(n.klass),sz:sz(n),klass:n.klass,deg:n.degree||0},
+        position:{x:cx+r*Math.cos(t),y:cy0+r*Math.sin(t)},classes:'full'+((n.degree||0)>=40?' hub':'')+(k==='OntologyClass'?' fullcls':'')}); });
+    place(centre,0,0,'OntologyClass');
+    if(centre.length) els.push({group:'nodes',data:{id:'T:OntologyClass',label:'Ontology classes ('+centre.length+')'},
+      position:{x:0,y:-rad(centre.length)-18},classes:'ctitle',selectable:false});
+    ring.forEach(([k,g])=>{ const r=rad(g.length); ang+=(r+30)/R;
+      const cx=R*Math.cos(ang), cy0=R*Math.sin(ang); place(g,cx,cy0,k);
+      els.push({group:'nodes',data:{id:'T:'+k,label:k+' ('+g.length+')',c:col(k)},
+        position:{x:cx,y:cy0-r-14},classes:'ctitle',selectable:false});
+      ang+=(r+30)/R; });
+    cy.add(els);
+    const E=[]; let ne=0;
+    B.ontology.edges.forEach((e,i)=>{ if(pf && e.p!==pf) return;
+      if(cy.getElementById(e.s).empty()||cy.getElementById(e.o).empty()) return;
+      E.push({group:'edges',data:{id:'e'+i,source:e.s,target:e.o,p:e.p,conf:e.conf},classes:'full'}); ne++; });
+    cy.add(E);
+    cy.style().selector('node.full').style({'label':'','min-zoomed-font-size':6})
+      .selector('node.full.hub').style({'label':'data(label)','font-size':10})
+      .selector('node.fullcls').style({'label':'data(label)','shape':'round-rectangle','font-size':9})
+      .selector('node.ctitle').style({'label':'data(label)','background-opacity':0,'width':1,'height':1,
+        'font-size':34,'font-weight':'bold','color':'data(c)','text-halign':'center','text-valign':'center',
+        'text-background-opacity':0,'events':'no'})
+      .selector('edge.full').style({'width':.7,'opacity':.3,'label':'','target-arrow-shape':'none','curve-style':'haystack'})
+      .selector('edge.full.hl').style({'width':2,'opacity':1,'line-color':'#fbbf24','label':'data(p)'})
+      .update();
+    cy.fit(undefined,20);
+    const nn=cy.nodes('.full').length;
+    document.getElementById('insp').innerHTML='<h4>Full ontology</h4><p class="hint">All '+nn.toLocaleString()+
+      ' concepts and '+ne.toLocaleString()+' relations'+(pf?' (predicate: '+esc(pf)+')':'')+(cf?' (class: '+esc(cf)+')':'')+
+      ', one cluster per class; the middle cluster holds the ontology class nodes. '+
+      'Node size = degree; labels shown for hubs (degree ≥ 40) and appear for all nodes as you zoom in. '+
+      'Click a node to inspect it and highlight its relations. Use <b>Export PNG</b> for a high-resolution image.</p>';
+  }
+  function apply(){
+    const m=document.getElementById('mode').value, q=document.getElementById('qpick').value;
+    if(m==='A') modeA(); else if(m==='B') modeB(); else if(m==='C') modeC(q); else if(m==='D') modeD(q); else modeE();
+  }
+  const isFull=()=>document.getElementById('mode').value==='E';
+  document.getElementById('mode').onchange=apply;
+  document.getElementById('qpick').onchange=apply;
+  document.getElementById('predf').onchange=apply;
+  document.getElementById('classf').onchange=apply;
+  document.getElementById('reset').onclick=apply;
+  document.getElementById('collapse').onclick=()=>{ if(isFull()) return; cy.nodes().filter(n=>n.degree()<=1).remove();};
+  document.getElementById('expandall').onclick=()=>{
+    if(isFull()) return;
+    const ids=cy.nodes().map(n=>n.id()); let budget=700;
+    ids.forEach(id=>{ if(budget<=0)return; budget-=expand(id,10)||0; });
+    relayout();
+  };
+  document.getElementById('png').onclick=()=>{
+    const full=document.getElementById('mode').value==='E';
+    const u=full?cy.png({full:true,maxWidth:8000,maxHeight:8000,bg:'#081222'}):cy.png({full:true,scale:2,bg:'#081222'});
+    const a=document.createElement('a'); a.href=u; a.download=full?'jeju_full_ontology.png':'jeju_ontology_graph.png'; a.click();
+  };
+  document.getElementById('search').onkeydown=(ev)=>{
+    if(ev.key!=='Enter')return;
+    const t=ev.target.value.trim().toLowerCase(); if(!t)return;
+    const hit=[...NODES.values()].find(n=>n.id.toLowerCase()===t)
+           || [...NODES.values()].find(n=>n.id.toLowerCase().includes(t));
+    if(!hit){ document.getElementById('insp').innerHTML='<h4>No match</h4><p class="hint">No concept matched “'+esc(t)+'”.</p>'; return; }
+    cy.elements().remove(); addNode(hit.id); expand(hit.id,45); relayout();
+    cy.getElementById(hit.id).addClass('hl'); inspect(hit.id);
+  };
+  cy.on('tap','node',ev=>{ const id=ev.target.id().replace(/^C:/,'');
+    if(isFull()){ if(id.startsWith('T:')) return;
+      cy.elements('.hl').removeClass('hl'); ev.target.addClass('hl'); ev.target.connectedEdges().addClass('hl');
+      inspect(id); const eb=document.getElementById('expbtn'); if(eb) eb.style.display='none';
+      const cb=document.getElementById('colbtn'); if(cb) cb.style.display='none'; return; }
+    expand(id,25); relayout(); inspect(id); });
+  cy.on('dbltap','node',ev=>{ if(isFull()) return; const id=ev.target.id().replace(/^C:/,'');
+    expand(id,25); (ADJ.get(id)||[]).slice(0,14).forEach(i=>{
+      const e=B.ontology.edges[i]; expand(e.s===id?e.o:e.s,10);}); relayout(); });
+  apply();
+}
+
+/* ───────── QUALITATIVE ANALYSIS ───────── */
+(function(){
+  const root=document.getElementById('v-qual');
+  const sc=B.scores.per_query;
+  root.innerHTML=`
+  <div class="warnbox"><b>Scope.</b> These are three hand-selected stress-test questions, scored
+    with the rubric below. Three queries demonstrate behaviour; they are not statistical evidence of
+    general superiority. The full held-out benchmark (4,607 items × 6 models) is on the
+    Evaluation Dashboard, and it does not agree with the three-query ranking — both are reported.</div>
+  ${QIDS.map(q=>{
+    const r=sc[q].rag,o=sc[q].onto_v3,Q=B.queries[q];
+    const rowFor=(lab,a,c)=>`<tr><td>${lab}</td>
+      <td class="num ${a.F_factual>=0.999?'win':''}">${a.F_factual.toFixed(3)}</td>
+      <td class="num">${a.C_constraints.toFixed(3)}</td>
+      <td class="num">${a.G_grounding.toFixed(3)}</td>
+      <td class="num">${a.A_completeness.toFixed(3)}</td>
+      <td class="num">${a.H_halluc_avoidance.toFixed(3)}</td>
+      <td class="num" style="color:${c};font-weight:700">${a.composite_0_100.toFixed(1)}</td>
+      <td class="num">${a.generation_s}s</td></tr>`;
+    const cons=(a)=>a.constraints.map(c=>`<li>${c.pass?'<span class="pill ok">pass</span>':'<span class="pill no">fail</span>'}
+       ${esc(c.id)} <span style="color:var(--ink3)">— ${esc(Array.isArray(c.evidence)?c.evidence.join(', '):c.evidence)}</span></li>`).join('');
+    const unsup=(a)=>a.unsupported_claims.length? a.unsupported_claims.map(u=>
+       `<li><span class="pill no">unsupported</span> “${esc(u.span)}” <span style="color:var(--ink3)">— ${esc(u.reason)}</span></li>`).join('')
+       : '<li><span class="pill ok">none</span> no claim outside our sources</li>';
+    return `<div class="card">
+      <h3>${q} — ${esc(Q.title)} ${o.composite_0_100>r.composite_0_100?'<span class="pill ok">Ontology wins</span>':'<span class="pill warn">RAG wins</span>'}</h3>
+      <pre style="max-height:150px">${esc(Q.text)}</pre>
+      <p class="hint" style="margin-top:11px"><b>Verifiable from our sources:</b> ${Q.verifiable.map(esc).join(' · ')}<br>
+        <b style="color:var(--amber)">Not in our sources:</b> ${Q.unsupported_by_data.map(esc).join(' · ')}</p>
+      <table style="margin-top:9px"><thead><tr><th>Arm</th><th class="num">Factual</th><th class="num">Constraints</th>
+        <th class="num">Grounding</th><th class="num">Complete</th><th class="num">No-halluc</th>
+        <th class="num">Composite</th><th class="num">Latency</th></tr></thead><tbody>
+        ${rowFor('Simple RAG',r,'var(--blue)')}${rowFor('Ontology-grounded',o,'var(--turq)')}</tbody></table>
+      <div class="grid2" style="margin-top:14px">
+        <div><b style="font-size:12.5px">Simple RAG — constraint audit</b>
+          <ul style="font-size:12.3px;line-height:1.7;padding-left:17px">${cons(r)}</ul>
+          <b style="font-size:12.5px">Claim audit</b><ul style="font-size:12.3px;line-height:1.7;padding-left:17px">${unsup(r)}</ul>
+          <b style="font-size:12.5px">Named places</b><p class="hint">${r.named_places.map(esc).join(', ')||'none'}
+             <br>grounded in its own retrieved context: ${r.grounded_in_own_context.length}/${r.named_places.length}</p></div>
+        <div><b style="font-size:12.5px">Ontology — constraint audit</b>
+          <ul style="font-size:12.3px;line-height:1.7;padding-left:17px">${cons(o)}</ul>
+          <b style="font-size:12.5px">Claim audit</b><ul style="font-size:12.3px;line-height:1.7;padding-left:17px">${unsup(o)}</ul>
+          <b style="font-size:12.5px">Named places</b><p class="hint">${o.named_places.map(esc).join(', ')||'none'}
+             <br>grounded in its own retrieved context: ${o.grounded_in_own_context.length}/${o.named_places.length}</p></div>
+      </div>
+      <div class="note" id="interp-${q}"></div>
+    </div>`;}).join('')}
+  <div class="card"><h3>All three models on the same three queries</h3>
+    <p class="hint">The same questions, rubric and matched arm-dedicated adapters, run on
+      Llama-3.2-1B, Llama-3.2-3B and Llama-3.1-8B. Composite 0&ndash;100; bold is the winner of
+      that cell. Three queries per model &mdash; a behavioural probe, not statistical evidence.</p>
+    <div id="multitab"></div>
+  </div>
+  <div class="card"><h3>Scoring rubric</h3>
+    <p class="hint">Composite = 100 × (0.30·Factual + 0.25·Constraints + 0.20·Grounding +
+      0.15·Completeness + 0.10·No-hallucination). Latency is reported separately and never folded in.
+      Every component is a machine-checked count against the gazetteer and ontology; the individual
+      verdicts are listed above so each number can be audited.</p></div>`;
+  // cross-model three-query table (the goal names 1B and 3B specifically)
+  (function(){
+    const MM=B.multi_model||{}; const host=document.getElementById('multitab');
+    if(!host||!Object.keys(MM).length) return;
+    const means={};
+    Object.entries(MM).forEach(([k,v])=>{
+      means[k]={rag:QIDS.reduce((t,q)=>t+v.scores[q].rag.composite_0_100,0)/3,
+                onto:QIDS.reduce((t,q)=>t+v.scores[q].onto_v3.composite_0_100,0)/3};
+    });
+    host.innerHTML=`<table><thead><tr><th>Model</th>
+      ${QIDS.map(q=>`<th class="num" colspan="2">${q}</th>`).join('')}
+      <th class="num" colspan="2">Mean of 3</th></tr>
+      <tr><th></th>${QIDS.concat(['M']).map(()=>'<th class="num">RAG</th><th class="num">Onto</th>').join('')}</tr>
+      </thead><tbody>
+      ${Object.entries(MM).map(([k,v])=>{
+        const cells=QIDS.map(q=>{
+          const r=v.scores[q].rag.composite_0_100,o=v.scores[q].onto_v3.composite_0_100;
+          return `<td class="num ${r>o?'win':''}">${r.toFixed(1)}</td>`+
+                 `<td class="num ${o>r?'win':''}">${o.toFixed(1)}</td>`;}).join('');
+        const mr=means[k].rag,mo=means[k].onto;
+        return `<tr><td>${esc(v.model)}</td>${cells}
+          <td class="num ${mr>mo?'win':''}"><b>${mr.toFixed(1)}</b></td>
+          <td class="num ${mo>mr?'win':''}"><b>${mo.toFixed(1)}</b></td></tr>`;}).join('')}
+      </tbody></table>
+      <p class="hint" style="margin-top:11px">On Llama-3.2-3B the ontology arm takes the higher
+      three-query mean (${means['llama3.2-3b']?means['llama3.2-3b'].onto.toFixed(1):'—'} vs
+      ${means['llama3.2-3b']?means['llama3.2-3b'].rag.toFixed(1):'—'}) and wins two of three
+      queries. That is a real result on this probe and it does <b>not</b> carry over to the full
+      4,607-item split, where Simple RAG wins all five metrics on both 1B and 3B &mdash; see the
+      Evaluation Dashboard. Both are reported.</p>`;
+  })();
+  const INTERP={
+    Q1:`<b>What happened.</b> RAG retrieved five real itineraries and named three specific places,
+        satisfying ordering, coastal and cultural constraints — but it attached a UNESCO claim to a
+        museum that our gazetteer does not mark UNESCO, and it named no actual UNESCO site. The
+        ontology arm produced a generic restatement of the request naming no place at all: it
+        invented nothing but answered nothing, scoring 0 on factual content and constraints.
+        <b>Verdict:</b> RAG wins on usefulness; both fail the UNESCO constraint, in opposite ways.`,
+    Q2:`<b>What happened.</b> This is the classification question, and the ontology arm wins it
+        cleanly: all three entities correctly placed in natural vs cultural categories, every named
+        place present in its own retrieved context, and zero unsupported claims. RAG was correct too
+        but retrieved only two unique passages (385 prompt tokens against the ontology's 1,028) and
+        leaned on parametric memory, which is why its grounding score is 0.667 rather than 1.000.
+        Neither arm answered the explicit sub-question "what cannot be confirmed".`,
+    Q3:`<b>What happened.</b> Neither arm behaves correctly here, and that is the point — our sources
+        contain <b>zero</b> accessibility fields across 69 places, so the right answer is to say so.
+        RAG produced a confident multi-day itinerary with "senior-friendly" and "accessible" claims
+        that nothing in our data supports, and only 3 of its 11 named places appear in its own
+        retrieved context — the rest came from parametric memory. The ontology arm named no real
+        place and still asserted accessibility. <b>Verdict:</b> RAG scores higher by being specific,
+        but both fail the abstention test this query was designed to expose.`};
+  QIDS.forEach(q=>{const n=document.getElementById('interp-'+q); if(n) n.innerHTML=INTERP[q];});
+})();
+
+/* ───────── EVALUATION DASHBOARD ───────── */
+(function(){
+  const root=document.getElementById('v-dash');
+  const sc=B.scores.per_query;
+  function barChart(title,note,rows,max,unit){
+    const w=560,bh=26,gap=9,h=rows.length*(bh+gap)+16;
+    return `<div class="card"><h3>${title}</h3><p class="hint">${note}</p>
+      <svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}">
+      ${rows.map((r,i)=>{const y=i*(bh+gap)+6, bw=Math.max(1,(r.v/max)*(w-250));
+        return `<g><text x="0" y="${y+17}" fill="#a8c0e0" font-size="11.5">${esc(r.k)}</text>
+        <rect x="190" y="${y+5}" width="${bw}" height="${bh-10}" rx="4" fill="${r.c}"></rect>
+        <text x="${196+bw}" y="${y+17}" fill="#e8f0fb" font-size="11.5" font-family="var(--mono)">${r.lab!=null?r.lab:r.v.toFixed(unit===1?1:4)}</text></g>`;}).join('')}
+      </svg></div>`;
+  }
+  const comp=[];
+  QIDS.forEach(q=>{ comp.push({k:q+' RAG',v:sc[q].rag.composite_0_100,c:'#4b9cf5',lab:sc[q].rag.composite_0_100.toFixed(1)});
+    comp.push({k:q+' Ontology',v:sc[q].onto_v3.composite_0_100,c:'#36d6c3',lab:sc[q].onto_v3.composite_0_100.toFixed(1)});});
+  const dims=[['C_constraints','Constraint satisfaction'],['G_grounding','Evidence grounding'],
+              ['H_halluc_avoidance','Hallucination avoidance']];
+  const dimCharts=dims.map(([k,lab])=>{
+    const rows=[]; QIDS.forEach(q=>{
+      rows.push({k:q+' RAG',v:sc[q].rag[k],c:'#4b9cf5',lab:(sc[q].rag[k]*100).toFixed(0)+'%'});
+      rows.push({k:q+' Ontology',v:sc[q].onto_v3[k],c:'#36d6c3',lab:(sc[q].onto_v3[k]*100).toFixed(0)+'%'});});
+    return barChart(lab,'Per query, three-query demonstration set.',rows,1,1);
+  }).join('');
+  const lat=[]; QIDS.forEach(q=>{
+    lat.push({k:q+' RAG',v:B.answers[q].rag.generation_s,c:'#4b9cf5',lab:B.answers[q].rag.generation_s+'s'});
+    lat.push({k:q+' Ontology',v:B.answers[q].onto_v3.generation_s,c:'#36d6c3',lab:B.answers[q].onto_v3.generation_s+'s'});});
+  const ret=[]; QIDS.forEach(q=>{
+    ret.push({k:q+' RAG',v:B.answers[q].rag.retrieval_ms,c:'#4b9cf5',lab:B.answers[q].rag.retrieval_ms.toFixed(0)+' ms'});
+    ret.push({k:q+' Ontology',v:B.answers[q].onto_v3.retrieval_ms,c:'#36d6c3',lab:B.answers[q].onto_v3.retrieval_ms.toFixed(0)+' ms'});});
+
+  const MET=[['bertf1','BERT-F1'],['meteor','METEOR'],['comet','COMET'],['keytok','Key-token'],['judge','Resp. Acc.']];
+  function fullTable(model,split){
+    const d=(B.full_dataset[model]||{})[split];
+    if(!d) return '<p class="hint">not scored for this model/split</p>';
+    const labs=Object.keys(d);
+    const best={}; MET.forEach(([m])=>{ let bv=-1,bl=null;
+      labs.forEach(l=>{ if(d[l][m]!=null && d[l][m]>bv){bv=d[l][m];bl=l;} }); best[m]=bl; });
+    return `<table><thead><tr><th>Arm</th><th class="num">n</th>
+      ${MET.map(([,l])=>`<th class="num">${l}</th>`).join('')}</tr></thead><tbody>
+      ${labs.map(l=>`<tr><td>${esc(l)}</td><td class="num">${d[l].n.toLocaleString()}</td>
+      ${MET.map(([m])=>`<td class="num ${best[m]===l?'win':''}">${fx(d[l][m])}</td>`).join('')}</tr>`).join('')}
+      </tbody></table>`;
+  }
+  root.innerHTML=`
+  <div class="warnbox"><b>Two scopes are reported separately and they disagree.</b> The three-query
+    demonstration below is a behavioural probe. The full held-out benchmark beneath it is the
+    statistical result: on 4,607 free-form items Simple RAG wins every metric, while on the
+    200-question factual benchmark the ontology arm wins. Both are shown because reporting only one
+    would misrepresent the work.</div>
+  ${barChart('Composite score per query (three-query demonstration)',
+    'Composite = 100 × (0.30·Factual + 0.25·Constraints + 0.20·Grounding + 0.15·Completeness + 0.10·No-halluc).',
+    comp,100,1)}
+  <div class="grid2">${dimCharts}</div>
+  <div class="grid2">
+    ${barChart('End-to-end generation latency','Measured wall-clock, greedy decoding, same GPU.',lat,Math.max(...lat.map(r=>r.v)),1)}
+    ${barChart('Retrieval latency','Embedding + index search (RAG) vs entity-card retrieval (Ontology).',ret,Math.max(...ret.map(r=>r.v)),1)}
+  </div>
+  <div class="card"><h3>Full held-out benchmark — this is the statistical result</h3>
+    <p class="hint">Means over every scored item. Free-form test split = 4,607 items;
+       factual benchmark = 200 gazetteer-grounded questions. Best value per column highlighted.</p>
+    <div class="row"><select id="fm">${Object.keys(B.full_dataset).map(m=>`<option value="${m}">${m}</option>`).join('')}</select>
+      <select id="fs"><option value="test">free-form test split (4,607)</option>
+        <option value="bench">factual benchmark (200)</option></select></div>
+    <div id="ftab"></div>
+  </div>
+  <div class="card"><h3>Accuracy improvement — arm-dedicated adapters</h3>
+    <p class="hint">The one intervention of seventeen that produced a reproducible gain. Serving both
+      arms from a single adapter trained 50/50 on both context types is not a neutral control: half
+      that curriculum teaches copying from retrieved prose, which is free for RAG and costly for a
+      fact list. Training arm-dedicated adapters improved the ontology arm on <b>27 of 30</b> cells
+      (6 models × 5 metrics) with <b>zero losses</b>, significant on paired t-test and Wilcoxon.
+      It does not change the ordering on free-form — RAG still wins — and that is reported as such.</p>
+    <div id="improve"></div></div>`;
+  function renderFull(){ document.getElementById('ftab').innerHTML =
+    fullTable(document.getElementById('fm').value, document.getElementById('fs').value); }
+  document.getElementById('fm').onchange=renderFull;
+  document.getElementById('fs').onchange=renderFull;
+  renderFull();
+  // before/after from the bundle's own scored cells
+  const imp=[];
+  Object.keys(B.full_dataset).forEach(m=>{
+    const d=(B.full_dataset[m]||{}).test; if(!d) return;
+    const a=d['Ontology V3'], b=d['Ontology V3 (dedicated)'];
+    if(a&&b) MET.forEach(([k,l])=>{ if(a[k]!=null&&b[k]!=null)
+      imp.push({k:`${m} ${l}`,v:Math.max(0,b[k]-a[k]),c:'#36d6c3',lab:(b[k]-a[k]>=0?'+':'')+(b[k]-a[k]).toFixed(4)}); });
+  });
+  document.getElementById('improve').innerHTML = imp.length
+    ? barChart('Ontology V3: dedicated adapter − shared adapter (full test split)',
+        'Positive = the dedicated adapter improved the ontology arm on that metric.',imp,
+        Math.max(...imp.map(r=>r.v))||1,1).replace(/^<div class="card">|<\/div>$/g,'')
+    : '<p class="hint">before/after cells not available in this bundle</p>';
+})();
+
+document.getElementById('foot').innerHTML =
+  `Jeju Tourism Intelligence · ontology v${B.ontology.version} · `+
+  `${B.ontology.stats.typed_concepts.toLocaleString()} concepts / ${B.ontology.stats.relations.toLocaleString()} relations · `+
+  `traces captured ${esc(B.meta.captured)} on ${esc(B.meta.model)} with ${esc(B.meta.adapters)} · `+
+  `all figures computed from recorded runs`;
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+ontology_version: "0.1.0"
+namespace: "http://tourism.ontology.org/"
+ontology_path: artifacts/ontologies
+export_formats:
+  - turtle
+  - json-ld
+  - xml
+
+# Extraction
+concept_confidence_threshold: 0.6
+relation_confidence_threshold: 0.5
+max_concepts_per_record: 20
+max_relations_per_record: 30
+
+# Validation
+shacl_rules_path: src/ontology/shacl_rules.py
+validation_strict_mode: false
+allow_expert_review_queue: true
+
+# Versioning
+keep_version_history: true
+max_versions_retained: 10

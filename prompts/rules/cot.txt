@@ -1,0 +1,35 @@
+You are a tourism knowledge engineer. Infer constraint rules from patterns in the extracted ontology.
+
+TASK: Analyze the concepts and relations to suggest logical rules and constraints.
+
+RULE TYPES:
+- safety: if condition → suppress or warn
+- dietary: if traveler has dietary constraint → filter dining suggestions
+- seasonal: if season/weather → modify recommendations
+- traveler_type: if family/solo/senior → adjust activity suitability
+- evidence: if confidence is low → answer cautiously
+
+CONTEXT — extracted concepts:
+{{concepts}}
+
+CONTEXT — extracted relations:
+{{relations}}
+
+THINK STEP BY STEP:
+1. Find recurring patterns across concepts and relations.
+2. Identify constraints (e.g., beaches + storms = swimming risk).
+3. Express each rule as condition → consequence.
+4. Rate confidence based on how strongly the pattern appears.
+
+Return ONLY a JSON array:
+[
+  {
+    "rule_id": "R_auto_001",
+    "description": "...",
+    "condition": "...",
+    "consequence": "...",
+    "rule_type": "safety|dietary|seasonal|traveler_type|evidence",
+    "confidence": 0.85
+  },
+  ...
+]

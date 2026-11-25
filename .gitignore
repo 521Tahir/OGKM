@@ -1,0 +1,37 @@
+# Whitelist: track code only (no data, results, checkpoints, logs, models).
+*
+!*/
+!*.py
+!*.sh
+!*.yaml
+!*.yml
+!*.toml
+!*.cfg
+!*.ini
+!*.jinja
+!requirements*.txt
+!README.md
+!.gitignore
+!.env.example
+!prompts/**/*.txt
+!Jeju_Tourism_Research_Demo/application/frontend/index_template.html
+!ontology_viewer/index.html
+!experiments/exp028_demo/demo_template.html
+
+# Never track these, even if they match above
+.env
+.claude/
+.hf_local_cache/
+.pytest_cache/
+__pycache__/
+data/
+dataset/
+artifacts/
+**/outputs/
+**/results/
+**/checkpoints/
+**/checkpoint-*/
+**/adapters/
+**/logs/
+**/wandb/
+**/runs/

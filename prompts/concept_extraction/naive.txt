@@ -1,0 +1,12 @@
+Extract tourism ontology concepts from the following tourism text.
+
+Return ONLY a valid JSON array. Each element must have:
+- "name": canonical concept name (string)
+- "concept_class": one of [Destination, Region, Country, City, Island, Attraction, NaturalAttraction, CulturalAttraction, ReligiousSite, Museum, Beach, Mountain, Trail, Park, Market, Landmark, Restaurant, Cuisine, Accommodation, TransportMode, Route, Activity, Itinerary, TravelerType, DietaryRequirement, Season, WeatherCondition, SafetyAdvice, EmergencyService, LocalCustom, TravelConstraint]
+- "aliases": list of alternative names or spellings (may be empty list)
+- "confidence": float between 0.0 and 1.0
+
+TEXT:
+{{text}}
+
+JSON array:

@@ -1,0 +1,11 @@
+Extract tourism ontology concepts from the text below.
+
+Steps: (1) Find named tourism entities. (2) Classify each. (3) Score confidence.
+
+CLASSES: Destination, Region, Country, City, Island, Attraction, NaturalAttraction, CulturalAttraction, ReligiousSite, Museum, Beach, Mountain, Trail, Park, Market, Landmark, Restaurant, Cuisine, Accommodation, TransportMode, Route, Activity, Itinerary, TravelerType, DietaryRequirement, Season, WeatherCondition, SafetyAdvice, EmergencyService, LocalCustom, TravelConstraint
+
+TEXT:
+{{text}}
+
+Output ONLY valid JSON starting with [ — no explanation, no markdown:
+[{"name": "...", "concept_class": "...", "aliases": [], "confidence": 0.9},
