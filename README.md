@@ -1,8 +1,6 @@
 # Jeju Tourism Ontology + LLM Knowledge Management System
 
-**Research Project — Jeju National University NLP-Lab**
-**Supervised by:** Prof. Yoon Yeo-Chan
-**Deadline:** 5 November 2026 | **Status:** Weeks 1–22 Complete ✅
+
 
 ---
 
@@ -60,17 +58,7 @@ Blocking happens at zero LLM cost — `src/utils/jeju_guard.py` runs in <1 ms.
 
 ---
 
-## Key Results (200-query benchmark, Llama 3.1-8B, ontology v1.0.0)
 
-| Variant | Entity Recall | Precision | Halluc% | Grounding |
-|---------|:---:|:---:|:---:|:---:|
-| V1 Baseline LLM | 43.8% | 47.0% | **100.0%** | 54.6% |
-| V2 Doc-RAG | 41.3% | 48.0% | 98.5% | 56.6% |
-| V3 Onto-RAG (subgraph) | 42.5% | 49.8% | 99.0% | 58.0% |
-| V4 Onto-RAG (hybrid) | 44.0% | 48.8% | 98.0% | 59.5% |
-| **V5 Constrained+Val** | 23.1% | **50.2%** | **8.5%** | **61.7%** |
-
-V5 reduces hallucination by **91.5 percentage points** vs baseline.
 
 ---
 
